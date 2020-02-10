@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 import argparse
 import subprocess
 import shutil
+
+from pprint import pprint
 
 
 FOR_REMOVING = (
@@ -68,23 +71,34 @@ def is_license_text_in_file(file):
                 return False
 
 
+def remove_cloned_repo():
+    shutil.rmtree(CLONED_REPO_PATH)
+
+
 def check_license_in_files():
     global CLONED_REPO_PATH
+    files_without_license = []
+
     for root, dirs, files in os.walk(CLONED_REPO_PATH):
         for file in files:
             path = os.path.join(root, file)
             if file not in IGNORE_FILES and not is_license_text_in_file(path):
-                raise Exception(f'File {path} has no license!')
+                files_without_license.append(path)
+
+    if files_without_license:
+        print('Files without license:')
+        pprint(files_without_license)
+
+        remove_cloned_repo()
+        sys.exit(1)
+
+    return files_without_license
 
 
 def create_archive():
     shutil.make_archive(
         CLONED_REPO_PATH.split('/')[-1], 'zip', CLONED_REPO_PATH
     )
-
-
-def remove_cloned_repo():
-    shutil.rmtree(CLONED_REPO_PATH)
 
 
 def preparator_handler(**kwargs):
@@ -100,8 +114,7 @@ def preparator_handler(**kwargs):
 
     if archive_flag:
         create_archive()
-
-    remove_cloned_repo()
+        remove_cloned_repo()
 
 
 def cli():
