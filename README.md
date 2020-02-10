@@ -1,4 +1,4 @@
-# sale-program-preparator
+# Preparation for sale program
 
 Simple cli utility for preparing cloned program for 
 sale or something else.
